@@ -5,6 +5,7 @@ import java.util.List;
 import com.vaadin.server.Page;
 import com.vaadin.server.Page.Styles;
 import com.vaadin.ui.Button;
+import com.vaadin.ui.Grid;
 import com.vaadin.ui.GridLayout;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
@@ -12,6 +13,7 @@ import com.vaadin.ui.VerticalLayout;
 
 import es.cic.taller.mus.juego.Baraja;
 import es.cic.taller.mus.juego.Carta;
+import es.cic.taller.mus.juego.Juego;
 import es.cic.taller.mus.juego.Mano;
 import es.cic.taller.mus.juego.Partida;
 import es.cic.taller.mus.juego.PartidaListener;
@@ -52,6 +54,8 @@ public class PantallaLayout extends GridLayout implements PartidaListener {
 	private Label labelApuestaJuego = new Label();
 
 	private Label labelApuestaActual = new Label();
+	
+	private Grid<Juego> grid = new Grid<>(Juego.class);
 	
 	public PantallaLayout(MyUI myUI, Partida partida) {
 		this.partida = partida;
@@ -117,13 +121,12 @@ public class PantallaLayout extends GridLayout implements PartidaListener {
 
 		VerticalLayout apuestas = new VerticalLayout();
 		apuestas.addComponents(labelApuestaMayor, labelApuestaMenor, labelApuestaPares, labelApuestaJuego, labelApuestaActual);
-		accionesApuestas.addComponents(acciones, apuestas);
+		
+		grid.setColumns("puntuacionEquipo1", "puntuacionEquipo2");
+		
+		accionesApuestas.addComponents(acciones, apuestas, grid);
 		
 		addComponent(accionesApuestas, 0, 3, 2,3);
-		
-		
-		
-		
 		
 		addComponent(labelEstado,0,4);
 		
@@ -163,6 +166,7 @@ public class PantallaLayout extends GridLayout implements PartidaListener {
 		labelApuestaJuego.setValue("Juego: " + estadoPantallaEvento.getApuestaJuego());
 		labelApuestaActual.setValue("Apuesta: " + estadoPantallaEvento.getApuestaActual());
 
+		grid.setItems(partida.getListaJuegos());
 	}
 	
 	@Override

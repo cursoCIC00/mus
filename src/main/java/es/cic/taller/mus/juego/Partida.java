@@ -191,4 +191,8 @@ public class Partida implements PartidaNotifier {
 	public EstadoPantallaEvento getEstadoPantallaEventoTipoAccion(TipoEventoPartida tipoEstadoEvento) {
 		return new EstadoPantallaEvento(tipoEstadoEvento, this, null, null, null, null, 0, 0, 0, 0, 0, false, false, false, false, false, false, 0, false, null, null, null, false, false, false, false, null);
 	}
+
+	public List<Juego> getListaJuegos() {
+		return listaJuegos;
+	}
 }
