@@ -20,8 +20,6 @@ public class ManoForm extends FormLayout {
 	private HorizontalLayout horizontalLayout = new HorizontalLayout();
 
 	
-//	private List<Carta> listaDescartes = new ArrayList<>();
-	
 	private Image imagen1 = new Image();
 	private Image imagen2 = new Image();
 	private Image imagen3 = new Image();
@@ -53,32 +51,40 @@ public class ManoForm extends FormLayout {
         return resource;
 	}
 	
-	public void setMano(Mano mano, boolean puedeDescartar) {
-//		listaDescartes.clear();
-//		listaDescartes.addAll(mano.getListaDescartadas());
-		
+	public void setMano(Mano mano, boolean puedeDescartar) {		
 		this.mano = mano;
 		this.puedeDescartar = puedeDescartar;
 		
-		seleccionaImagen(imagen1);
-		seleccionaImagen(imagen2);
-		seleccionaImagen(imagen3);
-		seleccionaImagen(imagen4);
-
 		cargaCarta(mano.getCarta1(), imagen1);
 		cargaCarta(mano.getCarta2(), imagen2);
 		cargaCarta(mano.getCarta3(), imagen3);
-		cargaCarta(mano.getCarta4(), imagen4);
+		cargaCarta(mano.getCarta4(), imagen4);		
+		
+		estableceDescartadaImagen(imagen1);
+		estableceDescartadaImagen(imagen2);
+		estableceDescartadaImagen(imagen3);
+		estableceDescartadaImagen(imagen4);
 	}
 
 	private void cargaCarta(Carta carta, Image imagen) {
-
 		imagen.setSource(getImageResource(carta.getNombreFichero()));
 		imagen.setWidth("100px");
 		imagen.setHeight("200px");
 	}
 	
-	private void seleccionaImagen(Component componente) {
+	private void estableceDescartadaImagen(Component componente) {
+		Carta carta = getCartaImagen(componente);
+		
+		boolean descartada = isCartaDescartada(carta);
+		
+		estableceSeleccionado(componente, descartada);
+	}
+
+	private boolean isCartaDescartada(Carta carta) {
+		return mano.getListaDescartadas().contains(carta);
+	}
+	
+	private Carta getCartaImagen(Component componente) {
 		Carta carta = null;
 		
 		if (componente.equals(imagen1)) {
@@ -90,15 +96,10 @@ public class ManoForm extends FormLayout {
 		} else if (componente.equals(imagen4)) {
 			carta = mano.getCarta4();
 		}
-		boolean seleccionado = false;
-		if (mano.getListaDescartadas().contains(carta)) {
-			seleccionado = false;
-			mano.getListaDescartadas().remove(carta);
-		} else {
-			seleccionado = true;
-			mano.getListaDescartadas().add(carta);
-		}
-		
+		return carta;
+	}
+	
+	private void estableceSeleccionado(Component componente, boolean seleccionado) {
 		if (!seleccionado) {
 			componente.setWidth("100px");
 			componente.setHeight("200px");
@@ -115,7 +116,18 @@ public class ManoForm extends FormLayout {
 				return;
 			}
 			Component componente = event.getComponent();
-			seleccionaImagen(componente);
+			Carta carta = getCartaImagen(componente);
+			
+			boolean descartada = isCartaDescartada(carta);
+			boolean descartar = !descartada;
+			
+			if (descartar) {
+				mano.getListaDescartadas().add(carta);
+			} else {
+				mano.getListaDescartadas().remove(carta);
+			}
+			
+			estableceSeleccionado(componente, descartar);
 		}
 
 		

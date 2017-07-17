@@ -8,12 +8,14 @@ import com.vaadin.ui.Button;
 import com.vaadin.ui.GridLayout;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
+import com.vaadin.ui.VerticalLayout;
 
 import es.cic.taller.mus.juego.Baraja;
 import es.cic.taller.mus.juego.Carta;
 import es.cic.taller.mus.juego.Mano;
 import es.cic.taller.mus.juego.Partida;
 import es.cic.taller.mus.juego.PartidaListener;
+import es.cic.taller.mus.juego.Ronda;
 import es.cic.taller.mus.juego.TipoEventoPartida;
 
 
@@ -39,7 +41,17 @@ public class PantallaLayout extends GridLayout implements PartidaListener {
 	private Button ordago = new Button("Órdago");
 	private Button envido = new Button("Envido");
 	
+	private Button siguienteRonda = new Button("Siguiente Ronda");
+	private Button siguienteJuego = new Button("Siguiente Juego");
+	
 	private Label labelEstado = new Label();
+	
+	private Label labelApuestaMayor = new Label();
+	private Label labelApuestaMenor = new Label();
+	private Label labelApuestaPares = new Label();
+	private Label labelApuestaJuego = new Label();
+
+	private Label labelApuestaActual = new Label();
 	
 	public PantallaLayout(MyUI myUI, Partida partida) {
 		this.partida = partida;
@@ -72,7 +84,7 @@ public class PantallaLayout extends GridLayout implements PartidaListener {
 		addComponent(manoFormJugador4, 2, 1);
 		
 		HorizontalLayout acciones = new HorizontalLayout();
-		acciones.addComponents(mus, noHayMus, descartar, aceptar, pasar, ordago, envido);
+		acciones.addComponents(mus, noHayMus, descartar, aceptar, pasar, ordago, envido, siguienteRonda, siguienteJuego);
 		acciones.setSizeFull();
 		this.setSizeFull();
 		
@@ -83,6 +95,8 @@ public class PantallaLayout extends GridLayout implements PartidaListener {
 		pasar.setEnabled(false);
 		ordago.setEnabled(false);
 		envido.setEnabled(false);
+		siguienteRonda.setEnabled(false);
+		siguienteJuego.setEnabled(false);
 		
 		
 		mus.addClickListener(e -> partida.getRondaActual().mus(estadoPantallaEvento.getMano()));
@@ -94,9 +108,23 @@ public class PantallaLayout extends GridLayout implements PartidaListener {
 		pasar.addClickListener(e -> partida.getRondaActual().pasar());
 		ordago.addClickListener(e -> partida.getRondaActual().ordago(estadoPantallaEvento.getMano()));
 		aceptar.addClickListener(e -> partida.getRondaActual().aceptar(estadoPantallaEvento.getMano()));
+		envido.addClickListener(e -> partida.getRondaActual().envidar(estadoPantallaEvento.getMano()));
+		
+		siguienteRonda.addClickListener(e -> partida.lanzaRonda());
+		siguienteJuego.addClickListener(e -> partida.lanzaRonda());
+		
+		HorizontalLayout accionesApuestas = new HorizontalLayout();
+
+		VerticalLayout apuestas = new VerticalLayout();
+		apuestas.addComponents(labelApuestaMayor, labelApuestaMenor, labelApuestaPares, labelApuestaJuego, labelApuestaActual);
+		accionesApuestas.addComponents(acciones, apuestas);
+		
+		addComponent(accionesApuestas, 0, 3, 2,3);
 		
 		
-		addComponent(acciones, 0, 3, 2,3);
+		
+		
+		
 		addComponent(labelEstado,0,4);
 		
 		partida.addPartidaListener(this);
@@ -121,6 +149,20 @@ public class PantallaLayout extends GridLayout implements PartidaListener {
 		ordago.setEnabled(estadoPantallaEvento.isApostar());
 		envido.setEnabled(estadoPantallaEvento.isApostar());
 		
+		siguienteRonda.setEnabled(estadoPantallaEvento.isManoInicial() 
+						&& partida.getRondaActual().getSuerteActual() == Ronda.SUERTE_ACABADO	
+						&& !partida.getRondaActual().getJuego().isTerminado() );
+			
+		siguienteJuego.setEnabled(estadoPantallaEvento.isManoInicial() 
+						&& partida.getRondaActual().getJuego().isTerminado()
+						&& partida.haySiguienteJuego()	);
+		
+		labelApuestaMayor.setValue("Mayor: " + estadoPantallaEvento.getApuestaMayor());
+		labelApuestaMenor.setValue("Menor: " + estadoPantallaEvento.getApuestaMenor());
+		labelApuestaPares.setValue("Pares: " + estadoPantallaEvento.getApuestaPares());
+		labelApuestaJuego.setValue("Juego: " + estadoPantallaEvento.getApuestaJuego());
+		labelApuestaActual.setValue("Apuesta: " + estadoPantallaEvento.getApuestaActual());
+
 	}
 	
 	@Override

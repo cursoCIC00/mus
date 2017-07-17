@@ -165,7 +165,8 @@ public class Ronda {
 		}	
 		ultimaApuesta = apuesta;
 		manoUltimaApuesta = mano;
-		manoHabla = getSiguienteManoQueHabla();		
+		manoHabla = getSiguienteManoQueHabla();	
+		this.partida.firePartidaEvento(partida.getEstadoPantallaEventoTipoAccion(TipoEventoPartida.ACCION_MUS));
 	}
 	
 	public void ordago(Mano mano) {
@@ -198,6 +199,7 @@ public class Ronda {
 				}
 			}
 			
+			manoHabla = null;
 			ultimaApuesta = 0;
 			manoUltimaApuesta = null;
 			ordago = false;
@@ -231,8 +233,12 @@ public class Ronda {
 			if (suerteActual == SUERTE_JUEGO) {
 				apuestaJuego += ultimaApuesta;
 			}	
+			
+			manoHabla = null;
 			ultimaApuesta = 0;
 			manoUltimaApuesta = null;
+			ordago = false;
+
 			cambiarSuerte();
 			if (suerteActual == SUERTE_ACABADO) {
 				calcularResultado();
@@ -284,7 +290,7 @@ public class Ronda {
 			}								
 		}
 		
-		partida.lanzaRonda();
+//		partida.lanzaRonda();
 	}
 	
 	private void cambiarSuerte() {
@@ -705,7 +711,7 @@ public class Ronda {
 	
 	private List<EstadoPantallaSimple> getListaEstadoPantallaSimple(TipoEventoPartida eventoPartida, Mano mano) {
 		List<Mano> listaRestoMano = getListaRestoMano(mano);
-		return listaRestoMano.parallelStream()
+		return listaRestoMano.stream()
 			.map(aux -> (suerteActual != SUERTE_ACABADO)? 
 							getEstadoPantallaSimpleCartasTapadas(eventoPartida, aux): 
 								getEstadoPantallaSimpleCartas(eventoPartida, aux))
@@ -716,7 +722,7 @@ public class Ronda {
 		int indiceJugadorManoActual = listaMano.indexOf(mano);
 		
 		List<Mano> listaDesdeMano = new ArrayList<>();
-		listaDesdeMano.addAll(listaMano.subList(indiceJugadorManoActual, listaMano.size()));
+		listaDesdeMano.addAll(listaMano.subList(indiceJugadorManoActual + 1, listaMano.size()));
 		listaDesdeMano.addAll(listaMano.subList(0, indiceJugadorManoActual));
 		return listaDesdeMano;
 	}
@@ -746,7 +752,12 @@ public class Ronda {
 					return "Punto";
 				}
 			case SUERTE_ACABADO:
-				return "Juego terminado";
+				if (juego.isTerminado()) {
+					return "Juego terminado";
+				} else {
+					return "Ronda terminada";
+				}
+			
 			default:
 				throw new RuntimeException("Suerte actual no contemplada");
 		}

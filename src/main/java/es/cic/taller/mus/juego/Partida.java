@@ -47,6 +47,7 @@ public class Partida implements PartidaNotifier {
 			pasarASiguienteMano();
 			rondaActual = new Ronda(this, juegoActual, getJugadoresDesdeMano());
 		}
+		firePartidaEvento(getEstadoPantallaEventoTipoAccion(TipoEventoPartida.ACCION_MUS));
 	}
 	
 	public Ronda getRondaActual() {
@@ -57,12 +58,12 @@ public class Partida implements PartidaNotifier {
 		this.rondaActual = rondaActual;
 	}
 
-	private boolean haySiguienteJuego() {
+	public boolean haySiguienteJuego() {
 		if (juegoActual == null) {
 			return false;
 		}
 		int indiceJuegoActual = listaJuegos.indexOf(juegoActual);
-		return indiceJuegoActual == listaJuegos.size() - 1;
+		return indiceJuegoActual != listaJuegos.size() - 1;
 	}
 	
 	private void cambiaJuego() {
