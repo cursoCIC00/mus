@@ -290,7 +290,6 @@ public class Ronda {
 			}								
 		}
 		
-//		partida.lanzaRonda();
 	}
 	
 	private void cambiarSuerte() {
