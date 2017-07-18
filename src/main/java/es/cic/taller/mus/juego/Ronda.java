@@ -726,7 +726,7 @@ public class Ronda {
 		return listaDesdeMano;
 	}
 	
-	
+	// Pdte de decir si lo mantengo
 	private void limpiaMensajes() {
 		for (Mano mano: listaMano) {
 			mano.getJugador().setMensaje("");
