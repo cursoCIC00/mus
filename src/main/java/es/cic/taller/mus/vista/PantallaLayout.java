@@ -1,5 +1,6 @@
 package es.cic.taller.mus.vista;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import com.vaadin.server.Page;
@@ -48,13 +49,8 @@ public class PantallaLayout extends GridLayout implements PartidaListener {
 	
 	private Label labelEstado = new Label();
 	
-	private Label labelApuestaMayor = new Label();
-	private Label labelApuestaMenor = new Label();
-	private Label labelApuestaPares = new Label();
-	private Label labelApuestaJuego = new Label();
+	private Grid<Apuesta> gridApuesta = new Grid<>(Apuesta.class);
 
-	private Label labelApuestaActual = new Label();
-	
 	private Grid<Juego> grid = new Grid<>(Juego.class);
 	
 	public PantallaLayout(MyUI myUI, Partida partida) {
@@ -86,6 +82,8 @@ public class PantallaLayout extends GridLayout implements PartidaListener {
 		addComponent(manoFormJugador2, 1, 0);
 		addComponent(manoFormJugador3, 0, 1);
 		addComponent(manoFormJugador4, 2, 1);
+		
+	
 		
 		HorizontalLayout acciones = new HorizontalLayout();
 		acciones.addComponents(mus, noHayMus, descartar, aceptar, pasar, ordago, envido, siguienteRonda, siguienteJuego);
@@ -120,13 +118,20 @@ public class PantallaLayout extends GridLayout implements PartidaListener {
 		HorizontalLayout accionesApuestas = new HorizontalLayout();
 
 		VerticalLayout apuestas = new VerticalLayout();
-		apuestas.addComponents(labelApuestaMayor, labelApuestaMenor, labelApuestaPares, labelApuestaJuego, labelApuestaActual);
 		
 		grid.setColumns("puntuacionEquipo1", "puntuacionEquipo2");
 		
-		accionesApuestas.addComponents(acciones, apuestas, grid);
+		gridApuesta.setColumns("apuesta", "cantidad");
+		
+		addComponent(grid, 0, 0);
+		
+		addComponent(gridApuesta, 0, 2);
+		
+		accionesApuestas.addComponents(acciones, apuestas);
 		
 		addComponent(accionesApuestas, 0, 3, 2,3);
+		
+		
 		
 		addComponent(labelEstado,0,4);
 		
@@ -139,10 +144,14 @@ public class PantallaLayout extends GridLayout implements PartidaListener {
 
 	private void carga(EstadoPantallaEvento estadoPantallaEvento) {
 		labelEstado.setValue(estadoPantallaEvento.getSuerteActual());
-		manoFormJugador1.setMano(estadoPantallaEvento.getMano(), estadoPantallaEvento.isDescartar());
-		manoFormJugador2.setMano(estadoPantallaEvento.getEnfrente().getMano(), estadoPantallaEvento.isDescartar());
-		manoFormJugador3.setMano(estadoPantallaEvento.getIzquierda().getMano(), estadoPantallaEvento.isDescartar());
-		manoFormJugador4.setMano(estadoPantallaEvento.getDerecha().getMano(), estadoPantallaEvento.isDescartar());
+		manoFormJugador1.setMano(estadoPantallaEvento.getMano(), estadoPantallaEvento.isDescartar(),
+				estadoPantallaEvento.getNombre(), estadoPantallaEvento.isManoHabla(), estadoPantallaEvento.isManoInicial());
+		manoFormJugador2.setMano(estadoPantallaEvento.getEnfrente().getMano(), estadoPantallaEvento.getEnfrente().isDescartar(), 
+				estadoPantallaEvento.getEnfrente().getNombre(), estadoPantallaEvento.getEnfrente().isManoHabla(), estadoPantallaEvento.getEnfrente().isManoInicial());
+		manoFormJugador3.setMano(estadoPantallaEvento.getIzquierda().getMano(), estadoPantallaEvento.getIzquierda().isDescartar(), 
+				estadoPantallaEvento.getIzquierda().getNombre(), estadoPantallaEvento.getIzquierda().isManoHabla(), estadoPantallaEvento.getIzquierda().isManoInicial());
+		manoFormJugador4.setMano(estadoPantallaEvento.getDerecha().getMano(), estadoPantallaEvento.getDerecha().isDescartar(), 
+				estadoPantallaEvento.getDerecha().getNombre(), estadoPantallaEvento.getDerecha().isManoHabla(), estadoPantallaEvento.getDerecha().isManoInicial());
 		
 		mus.setEnabled(estadoPantallaEvento.isMus());
 		noHayMus.setEnabled(estadoPantallaEvento.isNoHayMus());
@@ -159,13 +168,9 @@ public class PantallaLayout extends GridLayout implements PartidaListener {
 		siguienteJuego.setEnabled(estadoPantallaEvento.isManoInicial() 
 						&& partida.getRondaActual().getJuego().isTerminado()
 						&& partida.haySiguienteJuego()	);
-		
-		labelApuestaMayor.setValue("Mayor: " + estadoPantallaEvento.getApuestaMayor());
-		labelApuestaMenor.setValue("Menor: " + estadoPantallaEvento.getApuestaMenor());
-		labelApuestaPares.setValue("Pares: " + estadoPantallaEvento.getApuestaPares());
-		labelApuestaJuego.setValue("Juego: " + estadoPantallaEvento.getApuestaJuego());
-		labelApuestaActual.setValue("Apuesta: " + estadoPantallaEvento.getApuestaActual());
 
+
+		gridApuesta.setItems(getListaApuestas(estadoPantallaEvento));
 		grid.setItems(partida.getListaJuegos());
 	}
 	
@@ -188,6 +193,42 @@ public class PantallaLayout extends GridLayout implements PartidaListener {
 		this.partida = partida;
 	}
 	
+	private List<Apuesta> getListaApuestas(EstadoPantallaEvento estadoPantallaEvento) {
+		List<Apuesta> listaApuestas = new ArrayList<>();
+		
+		listaApuestas.add(new Apuesta("Mayor", estadoPantallaEvento.getApuestaMayor()));
+		listaApuestas.add(new Apuesta("Menor", estadoPantallaEvento.getApuestaMenor()));
+		listaApuestas.add(new Apuesta("Pares", estadoPantallaEvento.getApuestaPares()));
+		listaApuestas.add(new Apuesta("Juego", estadoPantallaEvento.getApuestaJuego()));
+		listaApuestas.add(new Apuesta("Actual", estadoPantallaEvento.getApuestaActual()));
+		
+		return listaApuestas;
+	}
 	
+	public class Apuesta{
+		private String apuesta;
+		private int cantidad;
+		
+		public Apuesta() {
+			
+		}
+		public Apuesta(String apuesta, int cantida) {
+			this.apuesta = apuesta;
+			this.cantidad = cantida;
+		}
+		
+		public String getApuesta() {
+			return apuesta;
+		}
+		public void setApuesta(String apuesta) {
+			this.apuesta = apuesta;
+		}
+		public int getCantidad() {
+			return cantidad;
+		}
+		public void setCantidad(int cantidad) {
+			this.cantidad = cantidad;
+		}
+	}
 	
 }

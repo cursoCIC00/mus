@@ -11,6 +11,8 @@ import com.vaadin.ui.Component;
 import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Image;
+import com.vaadin.ui.Label;
+import com.vaadin.ui.VerticalLayout;
 
 import es.cic.taller.mus.juego.Carta;
 import es.cic.taller.mus.juego.Mano;
@@ -18,6 +20,7 @@ import es.cic.taller.mus.juego.Mano;
 
 public class ManoForm extends FormLayout {
 	private HorizontalLayout horizontalLayout = new HorizontalLayout();
+	private VerticalLayout verticalLayout = new VerticalLayout();
 
 	
 	private Image imagen1 = new Image();
@@ -25,21 +28,38 @@ public class ManoForm extends FormLayout {
 	private Image imagen3 = new Image();
 	private Image imagen4 = new Image();
 	
+	private Image imagenComienza = new Image();
+	private Image imagenHabla = new Image();
 
+	Label labelNombre = new Label();
+	
 	private Mano mano;
 	
 	private boolean puedeDescartar;
 	
 	public ManoForm() {
 	
-		horizontalLayout.addComponents(imagen1, imagen2, imagen3, imagen4);
+		horizontalLayout.addComponents(imagen1, imagen2, imagen3, imagen4, imagenComienza, imagenHabla);
 
 		imagen1.addClickListener(new Seleccion());
 		imagen2.addClickListener(new Seleccion());
 		imagen3.addClickListener(new Seleccion());
 		imagen4.addClickListener(new Seleccion());
 		
-		addComponents(horizontalLayout);
+		
+		imagenComienza.setSource(getImageResource("circle.png"));
+		imagenComienza.setWidth("100px");
+		imagenComienza.setHeight("100px");
+		imagenComienza.setVisible(false);
+		
+		imagenHabla.setSource(getImageResource("habla.png"));
+		imagenHabla.setWidth("100px");
+		imagenHabla.setHeight("100px");
+		imagenHabla.setVisible(false);
+		
+		verticalLayout.addComponents(horizontalLayout, labelNombre);
+		
+		addComponents(verticalLayout);
 		this.setSizeFull();
 	}
 	
@@ -51,19 +71,26 @@ public class ManoForm extends FormLayout {
         return resource;
 	}
 	
-	public void setMano(Mano mano, boolean puedeDescartar) {		
+	public void setMano(Mano mano, boolean puedeDescartar, String nombre, boolean habla, boolean comienza) {		
 		this.mano = mano;
 		this.puedeDescartar = puedeDescartar;
 		
 		cargaCarta(mano.getCarta1(), imagen1);
 		cargaCarta(mano.getCarta2(), imagen2);
 		cargaCarta(mano.getCarta3(), imagen3);
-		cargaCarta(mano.getCarta4(), imagen4);		
+		cargaCarta(mano.getCarta4(), imagen4);	
+
+		
 		
 		estableceDescartadaImagen(imagen1);
 		estableceDescartadaImagen(imagen2);
 		estableceDescartadaImagen(imagen3);
 		estableceDescartadaImagen(imagen4);
+		
+		labelNombre.setValue(nombre);
+		
+		imagenComienza.setVisible(comienza);
+		imagenHabla.setVisible(habla);
 	}
 
 	private void cargaCarta(Carta carta, Image imagen) {
