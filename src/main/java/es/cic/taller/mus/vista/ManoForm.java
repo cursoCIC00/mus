@@ -137,6 +137,9 @@ public class ManoForm extends FormLayout {
 	}
 	
 	class Seleccion implements ClickListener {
+
+		private static final long serialVersionUID = 1097359184957535482L;
+
 		@Override
 		public void click(ClickEvent event) {
 			if (!puedeDescartar) {
